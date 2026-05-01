@@ -51,7 +51,12 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
     if ('CAMPAIGN' in result) {
       const campaignData = result.CAMPAIGN;
       setButtonClicked(transformCampaignData(campaignData));
-      setClient((prev) => ({ ...prev, ID_ANALYTICS: campaignData.ANALYTICS_ID, ID_USER: campaignData.USER_ID, ID_CAMPAIGN: campaignData.ID }));
+      setClient((prev) => ({
+        ...prev,
+        ID_ANALYTICS: campaignData.ANALYTICS_ID,
+        ID_USER: campaignData.USER_ID,
+        ID_CAMPAIGN: campaignData.ID,
+      }));
       setData(campaignData);
       setLiberary(validateStatus(campaignData));
       setStarted(false);
@@ -68,7 +73,8 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
 
       socket.on('initSuccess', (data) => {
         setConnectSocket(false);
-        setClient(() => ({ ...client, ID_MODEL_PLAY: data.ID_MODEL_PLAY, ID_MODEL_TIME: data.ID_MODEL_TIME }));
+        setClient(() => ({ ...client, ID_MODEL_PLAY: data.ID_MODEL_PLAY, ID_MODEL_TIME: data.ID_MODEL_TIME, ID_CAMPAIGN: data.ID_CAMPAIGN }));
+        localStorage.setItem('view', data.ID_MODEL_PLAY);
       });
 
       return () => {

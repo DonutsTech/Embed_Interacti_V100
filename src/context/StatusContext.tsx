@@ -33,6 +33,7 @@ const DEFAULT_VALUE: StatusContextPros = {
     PLAY: 0,
     VIEW: 0,
     TIMESCREEN: 0,
+    ID_CAMPAIGN: undefined,
   },
   setClient: () => {},
   buttonClicked: undefined,
@@ -75,6 +76,7 @@ export const StatusProvider = ({ children }: { children: React.ReactNode }) => {
           ID_ANALYTICS: undefined,
           ID_USER: undefined,
           ID_MODEL_TIME: undefined,
+          ID_CAMPAIGN: undefined,
         };
 
         setClient((prev) => ({ ...prev, ...clientData }));

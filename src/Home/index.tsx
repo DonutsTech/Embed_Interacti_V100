@@ -26,6 +26,7 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ data }) => {
   const { liberary, client, setClient } = useContext(StatusContext);
 
+  const divRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Record<string, HTMLVideoElement>>({});
   const [timeVideo, setTimeVideo] = useState<number>(0);
   const [timeVideoAll, setTimeVideoAll] = useState<number>(0);
@@ -39,16 +40,42 @@ const Home: React.FC<HomeProps> = ({ data }) => {
   const fristVideo = data.CAMPAIGN_VIDEOS.find((c) => c.ORDER === 1);
 
   useEffect(() => {
+    const embed = divRef.current;
+
+    if (!embed) return;
+
+    const observer = new window.IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            socket.emit('view', client);
+            socket.off('view');
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        threshold: 0.5,
+      },
+    );
+
+    observer.observe(embed);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
     if (!current) {
       setCurrent(fristVideo?.VIDEO.ID);
     }
   }, [data]);
 
   useEffect(() => {
-    console.log('timeVideoAll mudou:', timeVideoAll);
-
     if (play && timeVideoAll > 0) {
-      socket.emit('timescreen', client);
+      const newClient = { ...client, TIMESCREEN: timeVideoAll };
+      socket.emit('timescreen', newClient);
 
       socket.on('timescreenSuccess', (client) => {
         console.log(client);
@@ -147,11 +174,13 @@ const Home: React.FC<HomeProps> = ({ data }) => {
 
     setTimeVideo(currentTime);
     if (play) {
-      setTimeVideoAll((prev) => prev + 1);
+      setTimeVideoAll((prev) => prev + currentTime);
     }
   };
 
-  const handleVideoEnd = () => {
+  const handleVideoEnd = (videoId: string) => {
+    if (videoId !== current) return;
+
     const currentVideo = data.CAMPAIGN_VIDEOS.find((c) => c.VIDEO.ID === current)?.BONDS.find(
       ({ BOND }) => BOND.BUTTON === false,
     );
@@ -159,6 +188,8 @@ const Home: React.FC<HomeProps> = ({ data }) => {
     if (currentVideo && currentVideo.BOND.VIDEO_ID) {
       setCurrent(currentVideo.BOND.VIDEO_ID);
       setTimeVideo(0);
+      socket.emit('continuity_click_video', currentVideo.BOND.ID);
+      socket.off('continuity_click_video');
       videoRefs.current[currentVideo.BOND.VIDEO_ID].muted = false;
       videoRefs.current[currentVideo.BOND.VIDEO_ID].play().catch(console.error);
     }
@@ -199,7 +230,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
               const bonds = c.BONDS.filter(({ BOND }) => BOND.BUTTON === true);
 
               return (
-                <div key={c.ID}>
+                <div ref={divRef} key={c.ID}>
                   {isPlaying && current === c.VIDEO_ID && <CustomVolume videoRef={videoRefs.current[c.VIDEO_ID]} />}
                   <video
                     id={c.VIDEO.ID}
@@ -217,7 +248,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                       height: '100%',
                       objectFit: 'cover',
                     }}
-                    onEnded={() => handleVideoEnd()}
+                    onEnded={() => handleVideoEnd(c.VIDEO.ID)}
                     onClick={() => handleVideoStart()}
                     onTimeUpdate={() => handleTimeUpdate()}
                     controls={false}
@@ -254,7 +285,11 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                             <button
                               className={style['embed-btn']}
                               style={{ ...btnStyle(cta) }}
-                              onClick={() => window.open(c.CTA_URL || '', '_blank')}
+                              onClick={() => {
+                                socket.emit('cta_click_video', c.ID);
+                                socket.off('cta_click_video');
+                                window.open(c.CTA_URL || '', '_blank');
+                              }}
                             >
                               {cta.buttonText || 'Saiba mais'}
                             </button>
@@ -266,9 +301,12 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                             className={style['embed-btnedge']}
                             style={{
                               ...btnEdgeStyle(JSON.parse(BOND.BUTTON_STYLE || '{}')),
+                              display: BOND.BUTTON_START ? 'block' : 'none',
                             }}
                             onClick={() => {
                               if (BOND.VIDEO_ID) {
+                                socket.emit('bond_click_video', BOND.ID);
+                                socket.off('bond_click_video');
                                 setCurrent(BOND.VIDEO_ID);
                                 setTimeVideo(0);
                                 videoRefs.current[BOND.VIDEO_ID].muted = false;
@@ -309,6 +347,13 @@ const Home: React.FC<HomeProps> = ({ data }) => {
               className={style.btnCta}
               style={{
                 ...ctaBtnStyle(JSON.parse(data.FEATURE.EXTERNAL_LINK.BUTTON_STYLE || '')),
+              }}
+              onClick={() => {
+                if (data.FEATURE?.EXTERNAL_LINK) {
+                  socket.emit('external_link_click', data.FEATURE.EXTERNAL_LINK.ID);
+                  socket.off('external_link_click');
+                  window.open(data.FEATURE.EXTERNAL_LINK.LINK_URL || '', '_blank');
+                }
               }}
             >
               {data.FEATURE.EXTERNAL_LINK.BUTTON_TEXT}
