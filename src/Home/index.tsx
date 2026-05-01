@@ -176,14 +176,14 @@ const Home: React.FC<HomeProps> = ({ data }) => {
           >
             {data.FEATURE.GANCHO.TITLE}
           </h1>
-          <p
+          <pre
             className={styles.ganchoSubTitle}
             style={{
               ...subTitleStyle(JSON.parse(data.FEATURE.GANCHO.SUBTITLE_STYLE)),
             }}
           >
             {data.FEATURE.GANCHO.SUBTITLE}
-          </p>
+          </pre>
         </div>
       )}
       <div className={styles.embed}>
