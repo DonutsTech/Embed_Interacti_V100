@@ -17,7 +17,7 @@ import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type React from 'react';
 import { useContext, useEffect, useRef, useState } from 'react';
-import style from './style.module.scss';
+import styles from './styles.module.scss';
 
 interface HomeProps {
   data: ICampaign;
@@ -165,11 +165,11 @@ const Home: React.FC<HomeProps> = ({ data }) => {
   };
 
   return (
-    <>
+    <section>
       {data.FEATURE && data.FEATURE.GANCHO && data.FEATURE.GANCHO.ATIVE && (
-        <div className={style.headlineBox}>
+        <div className={styles.headlineBox}>
           <h1
-            className={style.ganchoTitle}
+            className={styles.ganchoTitle}
             style={{
               ...titleStyle(JSON.parse(data.FEATURE.GANCHO.TITLE_STYLE)),
             }}
@@ -177,7 +177,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
             {data.FEATURE.GANCHO.TITLE}
           </h1>
           <p
-            className={style.ganchoSubTitle}
+            className={styles.ganchoSubTitle}
             style={{
               ...subTitleStyle(JSON.parse(data.FEATURE.GANCHO.SUBTITLE_STYLE)),
             }}
@@ -186,9 +186,9 @@ const Home: React.FC<HomeProps> = ({ data }) => {
           </p>
         </div>
       )}
-      <div className={style.embed}>
+      <div className={styles.embed}>
         {!isPlaying && (
-          <div className={style['embed-play-overlay']} onClick={() => handleVideoStart()}>
+          <div className={styles['embed-play-overlay']} onClick={() => handleVideoStart()}>
             <FontAwesomeIcon icon={faPlay} />
           </div>
         )}
@@ -199,7 +199,9 @@ const Home: React.FC<HomeProps> = ({ data }) => {
               const bonds = c.BONDS.filter(({ BOND }) => BOND.BUTTON === true);
 
               return (
-                <div key={c.ID}>
+                <div key={c.ID} 
+                  className={styles.videoContainer}
+                  >
                   {isPlaying && current === c.VIDEO_ID && <CustomVolume videoRef={videoRefs.current[c.VIDEO_ID]} />}
                   <video
                     id={c.VIDEO.ID}
@@ -209,19 +211,23 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                     src={c.VIDEO.URL}
                     muted
                     preload="metadata"
+                    className={styles.video}
                     style={{
                       position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      transition: 'opacity 0.5s ease-in-out',
                       opacity: current === c.VIDEO.ID ? 1 : 0,
-                      transition: 'opacity 0.3s ease',
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover',
+                      objectFit: 'contain',
                     }}
                     onEnded={() => handleVideoEnd()}
                     onClick={() => handleVideoStart()}
                     onTimeUpdate={() => handleTimeUpdate()}
                     controls={false}
                     disablePictureInPicture
+                    playsInline
                     controlsList="nodownload nofullscreen noremoteplayback"
                     poster={
                       c.ORDER === 1 &&
@@ -239,7 +245,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                     <>
                       {data.FEATURE && data.FEATURE.TIMELINE?.ATIVE && (
                         <div
-                          className={style.timeLine}
+                          className={styles.timeLine}
                           style={{
                             width: `${(timeVideo / c.VIDEO.DURATION) * 100}%`,
                             height: `${data.FEATURE.TIMELINE.HEIGHT}px`,
@@ -247,12 +253,17 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                           }}
                         />
                       )}
-                      <div style={{ width: '100%', height: '100%' }}>
+                      <div style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          overflow: 'hidden',  
+                          containerType: 'inline-size'
+                          }}>
                         {c.CTA && (
-                          <div className={style['embed-div']} style={{ ...divStyle(cta) }}>
+                          <div className={styles['embed-div']} style={{ ...divStyle(cta) }}>
                             <p style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</p>
                             <button
-                              className={style['embed-btn']}
+                              className={styles['embed-btn']}
                               style={{ ...btnStyle(cta) }}
                               onClick={() => window.open(c.CTA_URL || '', '_blank')}
                             >
@@ -263,7 +274,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                         {bonds.map(({ BOND, ID }) => (
                           <button
                             key={ID}
-                            className={style['embed-btnedge']}
+                            className={styles['embed-btnedge']}
                             style={{
                               ...btnEdgeStyle(JSON.parse(BOND.BUTTON_STYLE || '{}')),
                             }}
@@ -290,23 +301,23 @@ const Home: React.FC<HomeProps> = ({ data }) => {
             })}
           </>
         ) : (
-          <div className={style.image} />
+          <div className={styles.image} />
         )}
       </div>
       {data.FEATURE &&
         data.FEATURE.EXTERNAL_LINK &&
         data.FEATURE.EXTERNAL_LINK.ATIVE &&
         timeVideoAll >= (JSON.parse(data.FEATURE.EXTERNAL_LINK.STYLE_TEXT || '') as ctaStyleP).delay && (
-          <div className={style.ctaBox}>
-            <p
+          <div className={styles.ctaBox}>
+            <pre
               style={{
                 ...ctaPStyle(JSON.parse(data.FEATURE.EXTERNAL_LINK.STYLE_TEXT || '')),
               }}
             >
               {data.FEATURE.EXTERNAL_LINK.TEXT}
-            </p>
+            </pre>
             <button
-              className={style.btnCta}
+              className={styles.btnCta}
               style={{
                 ...ctaBtnStyle(JSON.parse(data.FEATURE.EXTERNAL_LINK.BUTTON_STYLE || '')),
               }}
@@ -315,7 +326,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
             </button>
           </div>
         )}
-    </>
+    </section>
   );
 };
 

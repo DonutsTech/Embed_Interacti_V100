@@ -1,0 +1,26 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  width: 100vw;
+  height: auto;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  height: auto;
+  min-height: 100dvh;
+}
+
+.conteudo {
+  width: 80%;
+  margin: auto;
+  height: auto;
+
+  /* border: red solid 1px; */
+}
