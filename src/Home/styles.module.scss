@@ -2,6 +2,8 @@
 
 pre {
   font-family: "Poppins", sans-serif !important;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 section {
@@ -52,7 +54,7 @@ section {
   transform: translate(-50%, -50%);
   z-index: 17;
 
-    transition: all 300ms ease-in-out;
+  transition: all 300ms ease-in-out;
 
   &:hover {
     filter: opacity(0.8);
@@ -142,6 +144,11 @@ section {
   font-weight: 600;
   border: none;
   cursor: pointer;
+  transition: all 300ms ease-in-out;
+
+  &:hover {
+    filter: opacity(0.8);
+  }
 }
 
 .embed {

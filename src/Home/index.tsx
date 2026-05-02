@@ -173,7 +173,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
     const currentTime = video.currentTime;
 
     setTimeVideo(currentTime);
-    if (play) {
+    if (isPlaying && play) {
       setTimeVideoAll((prev) => prev + currentTime);
     }
   };
@@ -312,7 +312,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                             className={styles['embed-btnedge']}
                             style={{
                               ...btnEdgeStyle(JSON.parse(BOND.BUTTON_STYLE || '{}')),
-                              display: BOND.BUTTON_START ? 'block' : 'none',
+                              display: BOND.BUTTON_START <= timeVideo ? 'block' : 'none',
                             }}
                             onClick={() => {
                               if (BOND.VIDEO_ID) {

@@ -73,6 +73,6 @@ export const ctaBtnStyle = (cta: CtaButtonStyle): CSSProperties => {
   return {
     backgroundColor: cta.corBG,
     color: cta.corTX,
-    borderRadius: `${cta.borderRadius}px`,
+    borderRadius: `${cta.borderRadius}`,
   };
 };
