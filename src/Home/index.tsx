@@ -13,6 +13,7 @@ import {
   subTitleStyle,
   titleStyle,
 } from '@/utils/functions';
+import { transformNumber } from '@/utils/transform';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type React from 'react';
@@ -29,7 +30,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
   const divRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Record<string, HTMLVideoElement>>({});
   const [timeVideo, setTimeVideo] = useState<number>(0);
-  const [timeVideoAll, setTimeVideoAll] = useState<number>(0);
+  const [timeVideoAll, setTimeVideoAll] = useState<{ [key: string]: number }>({});
 
   const [current, setCurrent] = useState<string | undefined>(undefined);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -73,8 +74,9 @@ const Home: React.FC<HomeProps> = ({ data }) => {
   }, [data]);
 
   useEffect(() => {
-    if (play && timeVideoAll > 0) {
-      const newClient = { ...client, TIMESCREEN: timeVideoAll };
+    const value = transformNumber(timeVideoAll);
+    if (play && value > 0) {
+      const newClient = { ...client, TIMESCREEN: value };
       socket.emit('timescreen', newClient);
 
       socket.on('timescreenSuccess', (client) => {
@@ -153,7 +155,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
     setStarted(false);
   };
 
-  const handleTimeUpdate = () => {
+  const handleTimeUpdate = (videoId: string) => {
     if (!current) return;
 
     const video = videoRefs.current[current];
@@ -174,7 +176,10 @@ const Home: React.FC<HomeProps> = ({ data }) => {
 
     setTimeVideo(currentTime);
     if (isPlaying && play) {
-      setTimeVideoAll((prev) => prev + currentTime);
+      setTimeVideoAll((prev) => ({
+        ...prev,
+        [videoId]: Math.floor(currentTime),
+      }));
     }
   };
 
@@ -253,7 +258,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                     }}
                     onEnded={() => handleVideoEnd(c.VIDEO.ID)}
                     onClick={() => handleVideoStart()}
-                    onTimeUpdate={() => handleTimeUpdate()}
+                    onTimeUpdate={() => handleTimeUpdate(c.VIDEO.ID)}
                     controls={false}
                     disablePictureInPicture
                     playsInline
@@ -345,7 +350,8 @@ const Home: React.FC<HomeProps> = ({ data }) => {
       {data.FEATURE &&
         data.FEATURE.EXTERNAL_LINK &&
         data.FEATURE.EXTERNAL_LINK.ATIVE &&
-        timeVideoAll >= (JSON.parse(data.FEATURE.EXTERNAL_LINK.STYLE_TEXT || '') as ctaStyleP).delay && (
+        transformNumber(timeVideoAll) >=
+          (JSON.parse(data.FEATURE.EXTERNAL_LINK.STYLE_TEXT || '') as ctaStyleP).delay && (
           <div className={styles.ctaBox}>
             <pre
               style={{

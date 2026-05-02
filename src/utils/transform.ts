@@ -27,3 +27,7 @@ export const transformCampaignData = (data: ICampaign): CampaignUpdateClient => 
     },
   };
 };
+
+export const transformNumber = (obj: { [key: string]: number }): number => {
+  return Object.values(obj).reduce((acc, value) => acc + value, 0);
+};
