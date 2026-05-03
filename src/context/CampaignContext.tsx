@@ -1,7 +1,7 @@
 import type { ICampaign } from '@/@types/campaigns';
 import type { ErrorMessage } from '@/@types/error';
 import socket from '@/server';
-import { getCampaigns } from '@/service/campaigns';
+import { getCampaigns, getTestAB } from '@/service/campaigns';
 import { transformCampaignData } from '@/utils/transform';
 import { validateStatus } from '@/utils/validate';
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
@@ -66,14 +66,19 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   useEffect(() => {
-    if (campaignId && conntectSocket && client.ID_ANALYTICS && client.ID_USER) {
+    if (campaignId && testabId && conntectSocket && client.ID_ANALYTICS && client.ID_USER) {
       socket.connect();
 
       socket.emit('init', client);
 
       socket.on('initSuccess', (data) => {
         setConnectSocket(false);
-        setClient(() => ({ ...client, ID_MODEL_PLAY: data.ID_MODEL_PLAY, ID_MODEL_TIME: data.ID_MODEL_TIME, ID_CAMPAIGN: data.ID_CAMPAIGN }));
+        setClient(() => ({
+          ...client,
+          ID_MODEL_PLAY: data.ID_MODEL_PLAY,
+          ID_MODEL_TIME: data.ID_MODEL_TIME,
+          ID_CAMPAIGN: data.ID_CAMPAIGN,
+        }));
         localStorage.setItem('view', data.ID_MODEL_PLAY);
       });
 
@@ -81,11 +86,40 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
         socket.off('initSuccess');
       };
     }
-  }, [campaignId, conntectSocket]);
+  }, [campaignId, testabId, conntectSocket]);
+
+  const fecthCampaignsTestAB = async (id: string) => {
+    setLoading(true);
+    const result = await getTestAB(id);
+
+    if ('STATUS' in result) {
+      setError(result);
+    }
+
+    if ('CAMPAIGN' in result) {
+      const campaignData = result.CAMPAIGN;
+      setButtonClicked(transformCampaignData(campaignData));
+      setClient((prev) => ({
+        ...prev,
+        ID_ANALYTICS: campaignData.ANALYTICS_ID,
+        ID_USER: campaignData.USER_ID,
+        ID_CAMPAIGN: campaignData.ID,
+      }));
+      setData(campaignData);
+      setLiberary(validateStatus(campaignData));
+      setStarted(false);
+      setConnectSocket(true);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
     if (campaignId && started) {
       fecthCampaigns(campaignId);
+    }
+
+    if (testabId && started) {
+      fecthCampaignsTestAB(testabId);
     }
   }, [campaignId, testabId, started]);
 

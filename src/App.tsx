@@ -14,8 +14,6 @@ function App({ idCampaign, idTestAB }: { idCampaign: string | null | undefined; 
     setTestabId(idTestAB);
   }
 
-  console.log('App data', data);
-
   return <>{loading ? <AnimatedLogo /> : <>{data ? <Home data={data} /> : null}</>}</>;
 }
 

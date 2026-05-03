@@ -22,9 +22,10 @@ import styles from './styles.module.scss';
 
 interface HomeProps {
   data: ICampaign;
+  testAB: boolean;
 }
 
-const Home: React.FC<HomeProps> = ({ data }) => {
+const Home: React.FC<HomeProps> = ({ data, testAB }) => {
   const { liberary, client, setClient } = useContext(StatusContext);
 
   const divRef = useRef<HTMLDivElement | null>(null);
@@ -302,8 +303,13 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                               className={styles['embed-btn']}
                               style={{ ...btnStyle(cta) }}
                               onClick={() => {
-                                socket.emit('cta_click_video', c.ID);
-                                socket.off('cta_click_video');
+                                if (testAB) {
+                                  socket.emit('cta_click_video', c.ID);
+                                  socket.off('cta_click_video');
+                                } else {
+                                  socket.emit('cta_click_video', c.ID);
+                                  socket.off('cta_click_video');
+                                }
                                 window.open(c.CTA_URL || '', '_blank');
                               }}
                             >
@@ -321,8 +327,13 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                             }}
                             onClick={() => {
                               if (BOND.VIDEO_ID) {
-                                socket.emit('bond_click_video', BOND.ID);
-                                socket.off('bond_click_video');
+                                if (testAB) {
+                                  socket.emit('bond_click_test_ab', BOND.ID);
+                                  socket.off('bond_click_test_ab');
+                                } else {
+                                  socket.emit('bond_click_video', BOND.ID);
+                                  socket.off('bond_click_video');
+                                }
                                 setCurrent(BOND.VIDEO_ID);
                                 setTimeVideo(0);
                                 videoRefs.current[BOND.VIDEO_ID].muted = false;
@@ -367,8 +378,13 @@ const Home: React.FC<HomeProps> = ({ data }) => {
               }}
               onClick={() => {
                 if (data.FEATURE?.EXTERNAL_LINK) {
-                  socket.emit('external_link_click', data.FEATURE.EXTERNAL_LINK.ID);
-                  socket.off('external_link_click');
+                  if (testAB) {
+                    socket.emit('external_link_click_test_ab', data.FEATURE.EXTERNAL_LINK.ID);
+                    socket.off('external_link_click_test_ab');
+                  } else {
+                    socket.emit('external_link_click', data.FEATURE.EXTERNAL_LINK.ID);
+                    socket.off('external_link_click');
+                  }
                   window.open(data.FEATURE.EXTERNAL_LINK.LINK_URL || '', '_blank');
                 }
               }}
