@@ -17,7 +17,7 @@ section {
 .embed-div {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 60%;
+  // width: 60%;
   height: auto;
   padding: 16px;
   align-items: center;
@@ -25,6 +25,7 @@ section {
   gap: 16px;
   justify-content: center;
   z-index: 17;
+  // border: green 1px solid;
 }
 
 .embed-btn {
