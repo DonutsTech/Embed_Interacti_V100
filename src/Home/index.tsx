@@ -304,7 +304,7 @@ const Home: React.FC<HomeProps> = ({ data }) => {
                             ...divStyle(cta),
                             display: timeVideo >= c.CTA_START ? 'block' : 'none',
                           }}>
-                            <p style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</p>
+                            <pre style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</pre>
                             <button
                               className={styles['embed-btn']}
                               style={{ ...btnStyle(cta) }}
