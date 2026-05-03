@@ -179,7 +179,7 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
     if (isPlaying && play) {
       setTimeVideoAll((prev) => ({
         ...prev,
-        [videoId]: Math.floor(currentTime),
+        ...(currentTime > 0 && { [videoId]: Math.floor(currentTime) }),
       }));
     }
   };
@@ -200,6 +200,8 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
       videoRefs.current[currentVideo.BOND.VIDEO_ID].play().catch(console.error);
     }
   };
+
+  console.log('render', { current, timeVideo, timeVideoAll });
 
   return (
     <section>
@@ -257,9 +259,9 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
                       height: '100%',
                       objectFit: 'contain',
                     }}
-                    onEnded={() => handleVideoEnd(c.VIDEO.ID)}
+                    onEnded={current === c.VIDEO.ID ? () => handleVideoEnd(c.VIDEO.ID) : undefined}
                     onClick={() => handleVideoStart()}
-                    onTimeUpdate={() => handleTimeUpdate(c.VIDEO.ID)}
+                    onTimeUpdate={current === c.VIDEO.ID ? () => handleTimeUpdate(c.VIDEO.ID) : undefined}
                     controls={false}
                     disablePictureInPicture
                     playsInline
@@ -297,8 +299,14 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
                         }}
                       >
                         {c.CTA && (
-                          <div className={styles['embed-div']} style={{ ...divStyle(cta) }}>
-                            <p style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</p>
+                          <div
+                            className={styles['embed-div']}
+                            style={{
+                              ...divStyle(cta),
+                              display: timeVideo >= c.CTA_START ? 'block' : 'none',
+                            }}
+                          >
+                            <pre style={{ ...pStyle(cta) }}>{c.CTA_TEXT}</pre>
                             <button
                               className={styles['embed-btn']}
                               style={{ ...btnStyle(cta) }}
