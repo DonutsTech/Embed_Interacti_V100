@@ -14,17 +14,21 @@ export const transformCampaignData = (data: ICampaign): CampaignUpdateClient => 
         BUTTON_CLICK_TEST_AB: 0,
       })),
     })),
-    FEATURE: {
-      ...(data.FEATURE.EXTERNAL_LINK
-        ? {
-            EXTERNAL_LINK: {
-              ID: data.FEATURE.EXTERNAL_LINK.ID,
-              BUTTON_CLICK_CAMPAING: 0,
-              BUTTON_CLICK_TEST_AB: 0,
-            },
-          }
-        : { EXTERNAL_LINK: undefined }),
-    },
+    ...(data.FEATURE_ID === null
+      ? { FEATURE: { EXTERNAL_LINK: undefined } }
+      : {
+          FEATURE: {
+            ...(data.FEATURE.EXTERNAL_LINK
+              ? {
+                  EXTERNAL_LINK: {
+                    ID: data.FEATURE.EXTERNAL_LINK.ID,
+                    BUTTON_CLICK_CAMPAING: 0,
+                    BUTTON_CLICK_TEST_AB: 0,
+                  },
+                }
+              : { EXTERNAL_LINK: undefined }),
+          },
+        }),
   };
 };
 

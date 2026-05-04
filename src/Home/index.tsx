@@ -38,34 +38,39 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
   const [started, setStarted] = useState<boolean>(true);
 
   const [play, setPlay] = useState<boolean>(false);
+  const [view, setView] = useState<boolean>(false);
+  const [autoPlay, setAutoPlay] = useState<boolean>(false);
 
   const fristVideo = data.CAMPAIGN_VIDEOS.find((c) => c.ORDER === 1);
 
   useEffect(() => {
-    const embed = divRef.current;
+    if (!view) {
+      const embed = divRef.current;
 
-    if (!embed) return;
+      if (!embed) return;
 
-    const observer = new window.IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            socket.emit('view', client);
-            socket.off('view');
-            observer.disconnect();
-          }
-        });
-      },
-      {
-        threshold: 0.5,
-      },
-    );
+      const observer = new window.IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              socket.emit('view', client);
+              socket.off('view');
+              observer.disconnect();
+              setView(true);
+            }
+          });
+        },
+        {
+          threshold: 0.5,
+        },
+      );
 
-    observer.observe(embed);
+      observer.observe(embed);
 
-    return () => {
-      observer.disconnect();
-    };
+      return () => {
+        observer.disconnect();
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -80,9 +85,8 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
       const newClient = { ...client, TIMESCREEN: value };
       socket.emit('timescreen', newClient);
 
-      socket.on('timescreenSuccess', (client) => {
-        console.log(client);
-        setClient((prev) => ({ ...prev, ID_MODEL_TIME: client.ID_MODEL_TIME }));
+      socket.on('timescreenSuccess', (data) => {
+        setClient((prev) => ({ ...prev, ID_MODEL_TIME: data.ID_MODEL_TIME }));
       });
 
       return () => {
@@ -96,6 +100,7 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
       const autoPlayActive = data.FEATURE.AUTO_PLAY.ATIVE;
 
       if (autoPlayActive && fristVideo) {
+        setAutoPlay(true);
         setTimeout(() => {
           videoRefs.current[fristVideo.VIDEO.ID].muted = true;
           videoRefs.current[fristVideo.VIDEO.ID].play().catch(console.error);
@@ -111,6 +116,8 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
   }, [data]);
 
   const handleVideoStart = () => {
+    setStarted(false);
+
     if (!liberary) {
       setStarted(false);
       setIsPlaying(true);
@@ -125,6 +132,7 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
     if (!video) return;
 
     const isPaused = video.paused;
+    console.log({ isPaused });
 
     Object.entries(videoRefs.current).forEach(([id, v]) => {
       if (!v) return;
@@ -142,18 +150,18 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
       setPlay(true);
     }
 
-    if (isPaused && tempBolean) {
+    if ((isPaused && tempBolean) || (!isPaused && autoPlay)) {
       video.muted = false;
       video.play().catch(console.error);
       setIsPlaying(true);
+      setAutoPlay(false);
+      return;
     }
 
     if (!isPaused && tempBolean) {
       video.pause();
       setIsPlaying(false);
     }
-
-    setStarted(false);
   };
 
   const handleTimeUpdate = (videoId: string) => {
@@ -200,8 +208,6 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
       videoRefs.current[currentVideo.BOND.VIDEO_ID].play().catch(console.error);
     }
   };
-
-  console.log('render', { current, timeVideo, timeVideoAll });
 
   return (
     <section>

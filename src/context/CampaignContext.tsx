@@ -1,5 +1,6 @@
 import type { ICampaign } from '@/@types/campaigns';
 import type { ErrorMessage } from '@/@types/error';
+import type { Client } from '@/@types/socket';
 import socket from '@/server';
 import { getCampaigns, getTestAB } from '@/service/campaigns';
 import { transformCampaignData } from '@/utils/transform';
@@ -32,8 +33,17 @@ export const CampaignContext = createContext<CampaignContextPros>(DEFAULT_VALUE)
 socket.on('connect', () => console.log('[IO] => new connnwct'));
 
 export const CampaignProvider = ({ children }: { children: React.ReactNode }) => {
-  const { setLiberary, setClient, setButtonClicked, client, conntectSocket, setConnectSocket, started, setStarted } =
-    useContext(StatusContext);
+  const {
+    setLiberary,
+    setClient,
+    setButtonClicked,
+    client,
+    conntectSocket,
+    setConnectSocket,
+    started,
+    setStarted,
+    setOpen,
+  } = useContext(StatusContext);
   const [campaignId, setCampaignId] = useState<string | undefined>(undefined);
   const [testabId, setTestabId] = useState<string | undefined>(undefined);
   const [error, setError] = useState<ErrorMessage | undefined>(undefined);
@@ -42,6 +52,7 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
 
   const fecthCampaigns = async (id: string) => {
     setLoading(true);
+
     const result = await getCampaigns(id);
 
     if ('STATUS' in result) {
@@ -66,27 +77,40 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   useEffect(() => {
-    if (campaignId && testabId && conntectSocket && client.ID_ANALYTICS && client.ID_USER) {
-      socket.connect();
+    if (conntectSocket) {
+      setConnectSocket(false);
+      if (!socket.connected) {
+        socket.connect();
+      }
 
-      socket.emit('init', client);
+      console.log('Connecting to socket with client:', client);
 
-      socket.on('initSuccess', (data) => {
-        setConnectSocket(false);
-        setClient(() => ({
-          ...client,
+      // Listener com referência nomeada
+      const handleInitSuccess = (data: Client) => {
+        console.log('Received initSuccess with data:', data);
+        setClient((prev) => ({
+          ...prev,
           ID_MODEL_PLAY: data.ID_MODEL_PLAY,
           ID_MODEL_TIME: data.ID_MODEL_TIME,
           ID_CAMPAIGN: data.ID_CAMPAIGN,
         }));
-        localStorage.setItem('view', data.ID_MODEL_PLAY);
+        localStorage.setItem('view', data.ID_MODEL_PLAY || '');
+      };
+
+      socket.on('initSuccess', (data) => {
+        console.log('Received initSuccess with data:', data);
+        handleInitSuccess(data);
       });
 
+      socket.emit('init', client);
+
+      setOpen(true);
+
       return () => {
-        socket.off('initSuccess');
+        socket.off('initSuccess', handleInitSuccess);
       };
     }
-  }, [campaignId, testabId, conntectSocket]);
+  }, [campaignId, testabId, conntectSocket, client]);
 
   const fecthCampaignsTestAB = async (id: string) => {
     setLoading(true);
@@ -115,6 +139,7 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
 
   useEffect(() => {
     if (campaignId && started) {
+      console.log('fetching campaign with id:', campaignId);
       fecthCampaigns(campaignId);
     }
 

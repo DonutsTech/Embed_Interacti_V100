@@ -14,6 +14,8 @@ interface StatusContextPros {
   setConnectSocket: React.Dispatch<React.SetStateAction<boolean>>;
   started: boolean;
   setStarted: React.Dispatch<React.SetStateAction<boolean>>;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const DEFAULT_VALUE: StatusContextPros = {
@@ -42,6 +44,8 @@ const DEFAULT_VALUE: StatusContextPros = {
   setConnectSocket: () => {},
   started: false,
   setStarted: () => {},
+  open: false,
+  setOpen: () => {},
 };
 
 export const StatusContext = createContext<StatusContextPros>(DEFAULT_VALUE);
@@ -52,6 +56,7 @@ export const StatusProvider = ({ children }: { children: React.ReactNode }) => {
   const [buttonClicked, setButtonClicked] = useState<CampaignUpdateClient | undefined>(DEFAULT_VALUE.buttonClicked);
   const [conntectSocket, setConnectSocket] = useState<boolean>(DEFAULT_VALUE.conntectSocket);
   const [started, setStarted] = useState<boolean>(DEFAULT_VALUE.started);
+  const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -101,8 +106,10 @@ export const StatusProvider = ({ children }: { children: React.ReactNode }) => {
       setConnectSocket,
       started,
       setStarted,
+      open,
+      setOpen,
     }),
-    [liberary, client, buttonClicked, conntectSocket],
+    [liberary, client, buttonClicked, conntectSocket, started, open],
   );
 
   return <StatusContext.Provider value={value}>{children}</StatusContext.Provider>;

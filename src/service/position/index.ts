@@ -1,4 +1,3 @@
-
 export const positionCity = async (): Promise<{ COUNTRY: string; CITY: string; REGION: string } | undefined> => {
   try {
     const url = 'https://ipinfo.io/json';
