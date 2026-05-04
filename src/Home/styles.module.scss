@@ -18,6 +18,7 @@ section {
   position: absolute;
   transform: translate(-50%, -50%);
   // width: 60%;
+
   height: auto;
   padding: 16px;
   align-items: center;
@@ -26,6 +27,12 @@ section {
   justify-content: center;
   z-index: 17;
   // border: green 1px solid;
+
+  pre {
+    font-size: 1.5cqw;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
 }
 
 .embed-btn {
