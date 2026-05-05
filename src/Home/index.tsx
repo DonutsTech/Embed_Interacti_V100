@@ -202,8 +202,13 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
     if (currentVideo && currentVideo.BOND.VIDEO_ID) {
       setCurrent(currentVideo.BOND.VIDEO_ID);
       setTimeVideo(0);
-      socket.emit('continuity_click_video', currentVideo.BOND.ID);
-      socket.off('continuity_click_video');
+      if (testAB) {
+        socket.emit('continuity_click_test_ab', currentVideo.BOND.ID);
+        socket.off('continuity_click_test_ab');
+      } else {
+        socket.emit('continuity_click_video', currentVideo.BOND.ID);
+        socket.off('continuity_click_video');
+      }
       videoRefs.current[currentVideo.BOND.VIDEO_ID].muted = false;
       videoRefs.current[currentVideo.BOND.VIDEO_ID].play().catch(console.error);
     }
@@ -318,8 +323,8 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
                               style={{ ...btnStyle(cta) }}
                               onClick={() => {
                                 if (testAB) {
-                                  socket.emit('cta_click_video', c.ID);
-                                  socket.off('cta_click_video');
+                                  socket.emit('cta_click_test_ab', c.ID);
+                                  socket.off('cta_click_test_ab');
                                 } else {
                                   socket.emit('cta_click_video', c.ID);
                                   socket.off('cta_click_video');
