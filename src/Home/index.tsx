@@ -26,7 +26,7 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ data, testAB }) => {
-  const { liberary, client, setClient } = useContext(StatusContext);
+  const { liberary, client, setClient, open } = useContext(StatusContext);
 
   const divRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Record<string, HTMLVideoElement>>({});
@@ -44,7 +44,7 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
   const fristVideo = data.CAMPAIGN_VIDEOS.find((c) => c.ORDER === 1);
 
   useEffect(() => {
-    if (!view) {
+    if (!view && open) {
       const embed = divRef.current;
 
       if (!embed) return;
@@ -71,7 +71,7 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
         observer.disconnect();
       };
     }
-  }, []);
+  }, [open]);
 
   useEffect(() => {
     if (!current) {

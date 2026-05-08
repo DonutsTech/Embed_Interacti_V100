@@ -3,16 +3,17 @@ import Home from './Home';
 import { AnimatedLogo } from './components/AnimateLogo';
 import { CampaignContext } from './context/CampaignContext';
 import { StatusContext } from './context/StatusContext';
+import { isUUID } from './utils/validate';
 
 function App({ idCampaign, idTestAB }: { idCampaign: string | null | undefined; idTestAB: string | null | undefined }) {
   const { setCampaignId, setTestabId, data, loading } = useContext(CampaignContext);
   const { open } = useContext(StatusContext);
 
-  if (idCampaign) {
+  if (idCampaign && isUUID(idCampaign || '')) {
     setCampaignId(idCampaign);
   }
 
-  if (idTestAB) {
+  if (idTestAB && isUUID(idTestAB || '')) {
     setTestabId(idTestAB);
   }
 
@@ -21,7 +22,7 @@ function App({ idCampaign, idTestAB }: { idCampaign: string | null | undefined; 
       {loading ? (
         <AnimatedLogo />
       ) : (
-        <>{open && !(data === undefined) ? <Home data={data} testAB={!(idTestAB === undefined)} /> : null}</>
+        <>{open && !(data === undefined) ? <Home data={data} testAB={isUUID(idTestAB || '')} /> : null}</>
       )}
     </>
   );
