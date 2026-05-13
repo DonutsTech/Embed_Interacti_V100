@@ -40,8 +40,7 @@ section {
   font-weight: 600;
   border: none;
   cursor: pointer;
-  // font-size: clamp(12px, 0.6cqw, 16px);
-  font-size: 1.2cqw;
+  font-size: max(14px, 1.2cqw);
   white-space: nowrap;
   transition: all 300ms ease-in-out;
 
@@ -53,8 +52,7 @@ section {
 .embed-btnedge {
   padding: 1cqw 1.5cqw;
   font-weight: 600;
-  // font-size: clamp(12px, 0.6cqw, 16px);
-  font-size: 1.2cqw;
+  font-size: max(14px, 1.2cqw);
   border: none;
   cursor: pointer;
   position: absolute;
@@ -148,7 +146,7 @@ section {
 
 .btnCta {
   padding: 1cqw 1.5cqw;
-  font-size: 1.2cqw;
+  font-size: max(14px, 1.5cqw);
   font-weight: 600;
   border: none;
   cursor: pointer;

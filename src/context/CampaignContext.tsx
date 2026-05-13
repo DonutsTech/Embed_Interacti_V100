@@ -83,18 +83,16 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
         socket.connect();
       }
 
-      console.log('Connecting to socket with client:', client);
-
-      // Listener com referência nomeada
       const handleInitSuccess = (data: Client) => {
         console.log('Received initSuccess with data:', data);
         setClient((prev) => ({
           ...prev,
+          ID_MODEL_VIEW: data.ID_MODEL_VIEW,
           ID_MODEL_PLAY: data.ID_MODEL_PLAY,
           ID_MODEL_TIME: data.ID_MODEL_TIME,
-          ID_CAMPAIGN: data.ID_CAMPAIGN,
         }));
-        localStorage.setItem('view', data.ID_MODEL_PLAY || '');
+        localStorage.setItem('view', data.ID_MODEL_VIEW || '');
+        setOpen(true);
       };
 
       socket.on('initSuccess', (data) => {
@@ -103,8 +101,6 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
       });
 
       socket.emit('init', client);
-
-      setOpen(true);
 
       return () => {
         socket.off('initSuccess', handleInitSuccess);

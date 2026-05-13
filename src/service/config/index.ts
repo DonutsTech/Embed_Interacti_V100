@@ -2,7 +2,7 @@ import axios, { type AxiosInstance } from 'axios';
 import { errorInterceptor, responseInterceptor } from './interceptors';
 
 const api: AxiosInstance = axios.create({
-  baseURL: 'https://testeinteractiplay.duckdns.org/public',
+  baseURL: 'http://localhost:4000/public',
   headers: {
     'Content-Type': 'application/json',
   },

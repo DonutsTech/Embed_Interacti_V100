@@ -22,6 +22,7 @@ const DEFAULT_VALUE: StatusContextPros = {
   liberary: true,
   setLiberary: () => {},
   client: {
+    ID_MODEL_VIEW: undefined,
     ID_ANALYTICS: undefined,
     ID_USER: undefined,
     ID_MODEL_PLAY: undefined,
@@ -68,7 +69,8 @@ export const StatusProvider = ({ children }: { children: React.ReactNode }) => {
         const position = await positionCity();
 
         const clientData: Client = {
-          ID_MODEL_PLAY: client,
+          ID_MODEL_VIEW: client,
+          ID_MODEL_PLAY: undefined,
           DEVICE: uaResult.device.type || 'desktop',
           BROWSER: uaResult.browser.name || 'desconhecido',
           OS: uaResult.os.name || 'desconecido',

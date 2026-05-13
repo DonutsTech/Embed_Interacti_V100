@@ -1,4 +1,5 @@
 export interface Client {
+  ID_MODEL_VIEW: string | undefined;
   ID_CAMPAIGN: string | undefined;
   ID_ANALYTICS: string | undefined;
   ID_USER: string | undefined;

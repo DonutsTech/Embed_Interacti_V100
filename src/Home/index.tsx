@@ -28,7 +28,7 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ data, testAB }) => {
   const { liberary, client, setClient, open } = useContext(StatusContext);
 
-  const divRef = useRef<HTMLDivElement | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
   const videoRefs = useRef<Record<string, HTMLVideoElement>>({});
   const [timeVideo, setTimeVideo] = useState<number>(0);
   const [timeVideoAll, setTimeVideoAll] = useState<{ [key: string]: number }>({});
@@ -44,25 +44,19 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
   const fristVideo = data.CAMPAIGN_VIDEOS.find((c) => c.ORDER === 1);
 
   useEffect(() => {
-    if (!view && open) {
-      const embed = divRef.current;
-
-      if (!embed) return;
+    if (!view && open && sectionRef.current) {
+      const embed = sectionRef.current;
 
       const observer = new window.IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               socket.emit('view', client);
-              socket.off('view');
-              observer.disconnect();
               setView(true);
             }
           });
         },
-        {
-          threshold: 0.5,
-        },
+        { threshold: 0.5 },
       );
 
       observer.observe(embed);
@@ -71,7 +65,7 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
         observer.disconnect();
       };
     }
-  }, [open]);
+  }, [open, view, client]);
 
   useEffect(() => {
     if (!current) {
@@ -119,10 +113,8 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
     setStarted(false);
 
     if (!liberary) {
-      setStarted(false);
       setIsPlaying(true);
       socket.emit('play_block', client);
-      socket.off('play_block');
       return;
     }
 
@@ -146,7 +138,6 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
     if (!play) {
       socket.connect();
       socket.emit('play', client);
-      socket.off('play');
       setPlay(true);
     }
 
@@ -215,7 +206,7 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
   };
 
   return (
-    <section>
+    <section ref={sectionRef}>
       {data.FEATURE && data.FEATURE.GANCHO && data.FEATURE.GANCHO.ATIVE && (
         <div className={styles.headlineBox}>
           <h1
@@ -249,7 +240,7 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
               const bonds = c.BONDS.filter(({ BOND }) => BOND.BUTTON === true);
 
               return (
-                <div ref={divRef} key={c.ID} className={styles.videoContainer}>
+                <div key={c.ID} className={styles.videoContainer}>
                   {isPlaying && current === c.VIDEO_ID && <CustomVolume videoRef={videoRefs.current[c.VIDEO_ID]} />}
                   <video
                     id={c.VIDEO.ID}
@@ -324,10 +315,8 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
                               onClick={() => {
                                 if (testAB) {
                                   socket.emit('cta_click_test_ab', c.ID);
-                                  socket.off('cta_click_test_ab');
                                 } else {
                                   socket.emit('cta_click_video', c.ID);
-                                  socket.off('cta_click_video');
                                 }
                                 window.open(c.CTA_URL || '', '_blank');
                               }}
@@ -347,11 +336,9 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
                             onClick={() => {
                               if (BOND.VIDEO_ID) {
                                 if (testAB) {
-                                  socket.emit('bond_click_test_ab', BOND.ID);
-                                  socket.off('bond_click_test_ab');
+                                  socket.emit('bond_click_test_ab', (BOND.ID, data.ID));
                                 } else {
-                                  socket.emit('bond_click_video', BOND.ID);
-                                  socket.off('bond_click_video');
+                                  socket.emit('bond_click_video', (BOND.ID, data.ID));
                                 }
                                 setCurrent(BOND.VIDEO_ID);
                                 setTimeVideo(0);
@@ -398,11 +385,9 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
               onClick={() => {
                 if (data.FEATURE?.EXTERNAL_LINK) {
                   if (testAB) {
-                    socket.emit('external_link_click_test_ab', data.FEATURE.EXTERNAL_LINK.ID);
-                    socket.off('external_link_click_test_ab');
+                    socket.emit('external_link_click_test_ab', (data.FEATURE.EXTERNAL_LINK.ID, data.ID));
                   } else {
-                    socket.emit('external_link_click', data.FEATURE.EXTERNAL_LINK.ID);
-                    socket.off('external_link_click');
+                    socket.emit('external_link_click', (data.FEATURE.EXTERNAL_LINK.ID, data.ID));
                   }
                   window.open(data.FEATURE.EXTERNAL_LINK.LINK_URL || '', '_blank');
                 }
