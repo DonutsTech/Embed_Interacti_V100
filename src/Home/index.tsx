@@ -17,7 +17,7 @@ import { transformNumber } from '@/utils/transform';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import ReactPixel from 'react-facebook-pixel';
+// import ReactPixel from 'react-facebook-pixel';
 import styles from './styles.module.scss';
 
 interface HomeProps {
@@ -84,22 +84,22 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
     if (!current) {
       setCurrent(fristVideo?.VIDEO.ID);
 
-      if (data.FEATURE.PIXEL?.ID_META && data.FEATURE.PIXEL.ID_META.trim() !== '') {
-        const meta = data.FEATURE.PIXEL.ID_META;
+      // if (data.FEATURE.PIXEL?.ID_META && data.FEATURE.PIXEL.ID_META.trim() !== '') {
+      //   const meta = data.FEATURE.PIXEL.ID_META;
 
-        ReactPixel.init(meta);
+      //   ReactPixel.init(meta);
 
-        ReactPixel.track('ViewContent', {
-          content_name: data.NAME,
-        });
-      }
+      //   ReactPixel.track('ViewContent', {
+      //     content_name: data.NAME,
+      //   });
+      // }
     }
   }, [data]);
 
   const handlePixelBtn = () => {
-    if (data.FEATURE.PIXEL?.ID_META && data.FEATURE.PIXEL.ID_META.trim() !== '') {
-      ReactPixel.track('Lead');
-    }
+    // if (data.FEATURE.PIXEL?.ID_META && data.FEATURE.PIXEL.ID_META.trim() !== '') {
+    //   ReactPixel.track('Lead');
+    // }
   };
 
   useEffect(() => {
