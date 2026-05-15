@@ -84,7 +84,12 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
     if (!current) {
       setCurrent(fristVideo?.VIDEO.ID);
 
-      if (data.FEATURE.PIXEL?.ID_META && data.FEATURE.PIXEL.ID_META.trim() !== '') {
+      if (
+        data.FEATURE &&
+        data.FEATURE.PIXEL &&
+        data.FEATURE.PIXEL.ID_META &&
+        data.FEATURE.PIXEL.ID_META.trim() !== ''
+      ) {
         const meta = data.FEATURE.PIXEL.ID_META;
 
         ReactPixel.init(meta);
@@ -97,7 +102,7 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
   }, [data]);
 
   const handlePixelBtn = () => {
-    if (data.FEATURE.PIXEL?.ID_META && data.FEATURE.PIXEL.ID_META.trim() !== '') {
+    if (data.FEATURE && data.FEATURE.PIXEL && data.FEATURE.PIXEL.ID_META && data.FEATURE.PIXEL.ID_META.trim() !== '') {
       ReactPixel.track('Lead');
     }
   };
