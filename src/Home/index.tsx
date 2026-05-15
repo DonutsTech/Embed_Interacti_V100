@@ -16,8 +16,8 @@ import {
 import { transformNumber } from '@/utils/transform';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import type React from 'react';
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import ReactPixel from 'react-facebook-pixel';
 import styles from './styles.module.scss';
 
 interface HomeProps {
@@ -42,6 +42,19 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
   const [autoPlay, setAutoPlay] = useState<boolean>(false);
 
   const fristVideo = data.CAMPAIGN_VIDEOS.find((c) => c.ORDER === 1);
+
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log('Socket conectado');
+    });
+    socket.on('disconnect', () => {
+      console.log('Socket desconectado');
+    });
+    return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+    };
+  }, []);
 
   useEffect(() => {
     if (!view && open && sectionRef.current) {
@@ -70,8 +83,24 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
   useEffect(() => {
     if (!current) {
       setCurrent(fristVideo?.VIDEO.ID);
+
+      if (data.FEATURE.PIXEL?.ID_META && data.FEATURE.PIXEL.ID_META.trim() !== '') {
+        const meta = data.FEATURE.PIXEL.ID_META;
+
+        ReactPixel.init(meta);
+
+        ReactPixel.track('ViewContent', {
+          content_name: data.NAME,
+        });
+      }
     }
   }, [data]);
+
+  const handlePixelBtn = () => {
+    if (data.FEATURE.PIXEL?.ID_META && data.FEATURE.PIXEL.ID_META.trim() !== '') {
+      ReactPixel.track('Lead');
+    }
+  };
 
   useEffect(() => {
     const value = transformNumber(timeVideoAll);
@@ -194,10 +223,10 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
       setCurrent(currentVideo.BOND.VIDEO_ID);
       setTimeVideo(0);
       if (testAB) {
-        socket.emit('continuity_click_test_ab', currentVideo.BOND.ID);
+        socket.emit('continuity_click_test_ab', { id: currentVideo.BOND.ID, id_campaign: data.ID });
         socket.off('continuity_click_test_ab');
       } else {
-        socket.emit('continuity_click_video', currentVideo.BOND.ID);
+        socket.emit('continuity_click_video', { id: currentVideo.BOND.ID, id_campaign: data.ID });
         socket.off('continuity_click_video');
       }
       videoRefs.current[currentVideo.BOND.VIDEO_ID].muted = false;
@@ -318,6 +347,7 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
                                 } else {
                                   socket.emit('cta_click_video', c.ID);
                                 }
+                                handlePixelBtn();
                                 window.open(c.CTA_URL || '', '_blank');
                               }}
                             >
@@ -336,9 +366,9 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
                             onClick={() => {
                               if (BOND.VIDEO_ID) {
                                 if (testAB) {
-                                  socket.emit('bond_click_test_ab', (BOND.ID, data.ID));
+                                  socket.emit('bond_click_test_ab', { id: BOND.ID, id_campaign: data.ID });
                                 } else {
-                                  socket.emit('bond_click_video', (BOND.ID, data.ID));
+                                  socket.emit('bond_click_video', { id: BOND.ID, id_campaign: data.ID });
                                 }
                                 setCurrent(BOND.VIDEO_ID);
                                 setTimeVideo(0);
@@ -385,10 +415,14 @@ const Home: React.FC<HomeProps> = ({ data, testAB }) => {
               onClick={() => {
                 if (data.FEATURE?.EXTERNAL_LINK) {
                   if (testAB) {
-                    socket.emit('external_link_click_test_ab', (data.FEATURE.EXTERNAL_LINK.ID, data.ID));
+                    socket.emit('external_link_click_test_ab', {
+                      id: data.FEATURE.EXTERNAL_LINK.ID,
+                      id_campaign: data.ID,
+                    });
                   } else {
-                    socket.emit('external_link_click', (data.FEATURE.EXTERNAL_LINK.ID, data.ID));
+                    socket.emit('external_link_click', { id: data.FEATURE.EXTERNAL_LINK.ID, id_campaign: data.ID });
                   }
+                  handlePixelBtn();
                   window.open(data.FEATURE.EXTERNAL_LINK.LINK_URL || '', '_blank');
                 }
               }}

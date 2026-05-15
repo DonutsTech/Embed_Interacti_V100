@@ -3,11 +3,12 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { AppProviders } from './context/index.tsx';
 
-const rootElement = document.getElementById('interactiplay');
-const idCampaign = rootElement?.getAttribute('data-campaign');
-const idTestAB = rootElement?.getAttribute('data-testab');
+const rootElements = document.querySelectorAll('[interactiplay]');
 
-if (rootElement) {
+rootElements.forEach((rootElement) => {
+  const idCampaign = rootElement.getAttribute('data-campaign');
+  const idTestAB = rootElement.getAttribute('data-testab');
+
   createRoot(rootElement).render(
     <StrictMode>
       <AppProviders>
@@ -15,4 +16,4 @@ if (rootElement) {
       </AppProviders>
     </StrictMode>,
   );
-}
+});
